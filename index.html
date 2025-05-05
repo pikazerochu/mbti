@@ -145,7 +145,7 @@
 <body>
     <div id="intro-screen">
         <h1>MBTI 性格測驗</h1>
-        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。如題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
+        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。如有題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
         <button id="start-btn">開始測驗</button>
     </div>
     <div id="quiz-container" style="display: none;">
@@ -406,7 +406,7 @@
                 const formData = new FormData();
                 formData.append('data', JSON.stringify(data));
 
-                const response = await fetch('https://script.google.com/macros/s/AKfycbxUwfdH2FAAA-fUPwGz7DyOir85v4EMBWU-mG6S5mSmQc_YkrZvygKAR-Q793ZVNwNd/exec', {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxF6X1WjacaxfeJJxu3xGdxxKezNOhyAcI3bb8iS0a44ix6iOXcgqCCbknqKrB6NPaQ/exec', {
                     method: 'POST',
                     body: formData
                 });
