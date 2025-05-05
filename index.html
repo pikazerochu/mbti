@@ -139,11 +139,13 @@
             line-height: 1.6;
         }
     </style>
+    <script src="question.js"></script>
+    <script src="typedescription.js"></script>
 </head>
 <body>
     <div id="intro-screen">
         <h1>MBTI 性格測驗</h1>
-        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。如有題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
+        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。如題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
         <button id="start-btn">開始測驗</button>
     </div>
     <div id="quiz-container" style="display: none;">
@@ -170,23 +172,8 @@
         </div>
     </div>
 
-    <script type="module">
-        import * as questions from './question.js';
-        import { mbtiDescriptions } from './typedescription.js';
-
-        const questionsData = questions.questionsData;
-        const questionsDataTeFe = questions.questionsDataTeFe;
-        const questionsDataTiFi = questions.questionsDataTiFi;
-        const questionsDataNeSe = questions.questionsDataNeSe;
-        const questionsDataNiSi = questions.questionsDataNiSi;
-        const questionsDataTeNiSi = questions.questionsDataTeNiSi;
-        const questionsDataFeNiSi = questions.questionsDataFeNiSi;
-        const questionsDataTiNeSe = questions.questionsDataTiNeSe;
-        const questionsDataFiNeSe = questions.questionsDataFiNeSe;
-        const questionsDataNeTiFi = questions.questionsDataNeTiFi;
-        const questionsDataSeTiFi = questions.questionsDataSeTiFi;
-        const questionsDataNiTeFe = questions.questionsDataNiTeFe;
-        const questionsDataSiTeFe = questions.questionsDataSiTeFe;
+    <script>
+        
 
         let currentStep = 1;
         let firstStageAnswers = {};
