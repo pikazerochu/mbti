@@ -462,24 +462,29 @@
             };
 
             try {
-                // 發送數據到 Google Apps Script Web App
+                console.log('發送數據:', JSON.stringify(data));
+                const formData = new FormData();
+                formData.append('data', JSON.stringify(data));
+
                 const response = await fetch('https://script.google.com/macros/s/AKfycbxUwfdH2FAAA-fUPwGz7DyOir85v4EMBWU-mG6S5mSmQc_YkrZvygKAR-Q793ZVNwNd/exec', {
                     method: 'POST',
-                    body: JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    body: formData
                 });
 
+                const responseText = await response.text();
+                console.log('回應狀態:', response.status, '回應內容:', responseText);
                 if (!response.ok) {
-                    throw new Error('無法寫入 Google Sheets');
+                    throw new Error(`無法寫入 Google Sheets: ${response.status} ${responseText}`);
                 }
-
-                
+                if (responseText !== 'Success') {
+                    throw new Error(`Google Apps Script 未回應 Success: ${responseText}`);
+                }
+                console.log('成功寫入 Google Sheets');
             } catch (error) {
-                console.error('寫入 Google Sheets 失敗:', error);
+                console.error('寫入 Google Sheets 失敗:', error.message);
                 alert('數據提交失敗，請稍後再試');
             }
+            
             // 顯示最終結果
             document.getElementById('feedback-form').style.display = 'none';
             document.getElementById('result').style.display = 'block';
