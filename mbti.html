@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>MBTI 性格測驗</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        #intro-screen {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #intro-screen p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        #stage-info {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin: 10px 0;
+        }
+        .question {
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .option-button {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-button.selected {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        .option-button:hover {
+            background-color: #e9ecef;
+        }
+        input[type="radio"] {
+            display: none; /* 隱藏原始 radio 按鈕 */
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        #start-btn {
+            font-size: 18px;
+            padding: 12px 24px;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #submit-container {
+            position: relative;
+            text-align: center;
+        }
+        .error-message {
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 14px;
+            position: absolute;
+            left: calc(50% + 90px); /* 按鈕寬度一半 + 間距 */
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+        .error-message.show {
+            display: inline-block;
+        }
+        #result, #feedback-form {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        #feedback-form label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #feedback-form input[type="text"], #feedback-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        #feedback-form textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        #mbti-type {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #mbti-type h2 {
+            font-size: 32px;
+            margin: 10px 0;
+        }
+        #mbti-type h3 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        #mbti-type p {
+            text-align: left;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+    </style>
+    <script src="question.js"></script>
+    <script src="typedescription.js"></script>
+</head>
+<body>
+    <div id="intro-screen">
+        <h1>MBTI 性格測驗</h1>
+        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。如有題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
+        <button id="start-btn">開始測驗</button>
+    </div>
+    <div id="quiz-container" style="display: none;">
+        <h1>MBTI 性格測驗</h1>
+        <p id="stage-info"></p>
+        <form id="quiz-form">
+            <div id="questions"></div>
+            <div id="submit-container">
+                <button type="submit" id="submit-btn">提交第一階段</button>
+                <span id="error" class="error-message"></span>
+            </div>
+        </form>
+        <div id="feedback-form">
+            <h2>意見回饋（可選）</h2>
+            <label for="self-reported-type">如果您已了解 MBTI 並知道自己的類型，請輸入：</label>
+            <input type="text" id="self-reported-type" placeholder="請輸入您的 MBTI 類型（例如 ENTJ），若未知請留空">
+            <label for="feedback-text">其他意見或建議（例如覺得哪一題描述不清楚）：</label>
+            <textarea id="feedback-text" placeholder="請輸入您的意見或建議（可留空）"></textarea>
+            <button id="submit-feedback">提交意見並查看結果</button>
+        </div>
+        <div id="result">
+            <h2>您的 MBTI 人格類型</h2>
+            <div id="mbti-type"></div>
+        </div>
+    </div>
+    
+    <script>
+        
+        let currentStep = 1;
+        let firstStageAnswers = {}; // 第一階段每題答案
+        let firstStageCounts = {}; // 第一階段計數
+        let secondStageAnswers = {}; // 第二階段每題答案
+        let secondStageCounts = {}; // 第二階段計數
+        let thirdStageAnswers = {}; // 第三階段每題答案
+        let thirdStageCounts = {}; // 第三階段計數
+        let selfReportedType = ''; // 儲存自評 MBTI 類型
+        let feedback = ''; // 儲存其他意見
+        let currentQuestions = questionsData; // 當前題目組
+        let selectedCombination = ''; // 第一階段傾向（例如 EJ）
+        let dominantFunction = ''; // 第二階段主導功能
+        let auxiliaryFunction = ''; // 第三階段輔助功能
+
+        // 設置階段說明文字
+        function setStageInfo() {
+            const stageInfo = document.getElementById('stage-info');
+            if (currentStep === 1) {
+                stageInfo.textContent = '第一階段，共18題';
+            } else if (currentStep === 2) {
+                stageInfo.textContent = '第二階段，共7題';
+            } else if (currentStep === 3) {
+                stageInfo.textContent = '第三階段，共7題';
+            }
+        }
+
+        // 動態生成題目
+        function renderQuestions() {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = ''; // 清空現有內容
+
+            currentQuestions.forEach(question => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                let optionsHtml = '';
+                question.options.forEach(option => {
+                    optionsHtml += `
+                        <div class="option-button" data-question-id="${question.id}" data-value="${option.value}">
+                            ${option.text}
+                            <input type="radio" name="question_${question.id}" value="${option.value}">
+                        </div>
+                    `;
+                });
+                questionDiv.innerHTML = `
+                    <h3>${question.id}. ${question.text}</h3>
+                    ${optionsHtml}
+                `;
+                questionsDiv.appendChild(questionDiv);
+            });
+
+            // 為每個選項按鈕添加點擊事件
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const questionId = button.getAttribute('data-question-id');
+                    const value = button.getAttribute('data-value');
+                    
+                    // 清除同一問題的其他選項的選中樣式
+                    document.querySelectorAll(`.option-button[data-question-id="${questionId}"]`).forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // 設置當前按鈕為選中樣式
+                    button.classList.add('selected');
+                    
+                    // 設置隱藏的 radio 按鈕為選中
+                    const radio = button.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                });
+            });
+
+            // 設置階段說明
+            setStageInfo();
+
+            // 平滑捲動到畫面頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 重置表單
+        function resetForm() {
+            document.getElementById('quiz-form').reset();
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('feedback-form').style.display = 'none';
+            document.getElementById('submit-btn').style.display = 'block';
+            document.getElementById('questions').style.display = 'block';
+            document.getElementById('error').textContent = '';
+            document.getElementById('error').classList.remove('show');
+            document.getElementById('submit-btn').textContent = `提交第${currentStep}階段`;
+        }
+
+        // 計算 MBTI 類型
+        function determineMBTI(combination, dominant, auxiliary) {
+            const typeMap = {
+                'EJ': {
+                    'Te': {
+                        'Ni': 'ENTJ',
+                        'Si': 'ESTJ'
+                    },
+                    'Fe': {
+                        'Ni': 'ENFJ',
+                        'Si': 'ESFJ'
+                    }
+                },
+                'IJ': {
+                    'Ni': {
+                        'Te': 'INTJ',
+                        'Fe': 'INFJ'
+                    },
+                    'Si': {
+                        'Te': 'ISTJ',
+                        'Fe': 'ISFJ'
+                    }
+                },
+                'EP': {
+                    'Ne': {
+                        'Ti': 'ENTP',
+                        'Fi': 'ENFP'
+                    },
+                    'Se': {
+                        'Ti': 'ESTP',
+                        'Fi': 'ESFP'
+                    }
+                },
+                'IP': {
+                    'Ti': {
+                        'Ne': 'INTP',
+                        'Se': 'ISTP'
+                    },
+                    'Fi': {
+                        'Ne': 'INFP',
+                        'Se': 'ISFP'
+                    }
+                }
+            };
+            return typeMap[combination]?.[dominant]?.[auxiliary] || '未知類型';
+        }
+
+        // 開始測驗
+        document.getElementById('start-btn').addEventListener('click', () => {
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            renderQuestions();
+        });
+
+        // 提交表單處理
+        document.getElementById('quiz-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            // 收集答案
+            const formData = new FormData(document.getElementById('quiz-form'));
+            const answers = {};
+            for (const [key, value] of formData.entries()) {
+                if (key.startsWith('question_')) {
+                    const questionId = key.split('_')[1];
+                    answers[questionId] = value;
+                }
+            }
+
+            // 驗證所有題目已回答
+            if (Object.keys(answers).length !== currentQuestions.length) {
+                document.getElementById('error').textContent = '請先答完所有題目再提交';
+                document.getElementById('error').classList.add('show');
+                return;
+            }
+            document.getElementById('error').textContent = '';
+            document.getElementById('error').classList.remove('show');
+            document.getElementById('submit-btn').textContent = `提交第${currentStep}階段`;
+
+            if (currentStep === 1) {
+                // 第一階段：計算 I/E 和 J/P 計數
+                firstStageAnswers = answers;
+                const valueCounts = {};
+                Object.values(answers).forEach(value => {
+                    valueCounts[value] = (valueCounts[value] || 0) + 1;
+                });
+                firstStageCounts = valueCounts;
+
+                // 判斷 I/E 和 J/P 傾向
+                const ie = (valueCounts.E || 0) >= (valueCounts.I || 0) ? 'E' : 'I';
+                const jp = (valueCounts.J || 0) >= (valueCounts.P || 0) ? 'J' : 'P';
+                selectedCombination = ie + jp;
+
+                // 選擇第二階段題目
+                if (selectedCombination === 'EJ') {
+                    currentQuestions = questionsDataTeFe;
+                } else if (selectedCombination === 'IJ') {
+                    currentQuestions = questionsDataNiSi;
+                } else if (selectedCombination === 'EP') {
+                    currentQuestions = questionsDataNeSe;
+                } else if (selectedCombination === 'IP') {
+                    currentQuestions = questionsDataTiFi;
+                }
+
+                // 進入第二階段
+                currentStep = 2;
+                document.getElementById('submit-btn').textContent = '提交第二階段';
+                resetForm();
+                renderQuestions();
+            } else if (currentStep === 2) {
+                // 第二階段：計算主導功能計數
+                secondStageAnswers = answers;
+                const valueCounts = {};
+                Object.values(answers).forEach(value => {
+                    valueCounts[value] = (valueCounts[value] || 0) + 1;
+                });
+                secondStageCounts = valueCounts;
+
+                // 判斷主導功能
+                const counts = Object.entries(valueCounts);
+                dominantFunction = counts.reduce((max, [value, count]) => 
+                    count > (valueCounts[max] || 0) ? value : max, counts[0][0]);
+
+                // 選擇第三階段題目
+                switch (dominantFunction) {
+                    case 'Te':
+                        currentQuestions = questionsDataTeNiSi;
+                        break;
+                    case 'Fe':
+                        currentQuestions = questionsDataFeNiSi;
+                        break;
+                    case 'Ti':
+                        currentQuestions = questionsDataTiNeSe;
+                        break;
+                    case 'Fi':
+                        currentQuestions = questionsDataFiNeSe;
+                        break;
+                    case 'Ne':
+                        currentQuestions = questionsDataNeTiFi;
+                        break;
+                    case 'Se':
+                        currentQuestions = questionsDataSeTiFi;
+                        break;
+                    case 'Ni':
+                        currentQuestions = questionsDataNiTeFe;
+                        break;
+                    case 'Si':
+                        currentQuestions = questionsDataSiTeFe;
+                        break;
+                }
+
+                // 進入第三階段
+                currentStep = 3;
+                document.getElementById('submit-btn').textContent = '提交第三階段';
+                resetForm();
+                renderQuestions();
+            } else if (currentStep === 3) {
+                // 第三階段：計算輔助功能計數
+                thirdStageAnswers = answers;
+                const valueCounts = {};
+                Object.values(answers).forEach(value => {
+                    valueCounts[value] = (valueCounts[value] || 0) + 1;
+                });
+                thirdStageCounts = valueCounts;
+
+                // 判斷輔助功能
+                const counts = Object.entries(valueCounts);
+                auxiliaryFunction = counts.reduce((max, [value, count]) => 
+                    count > (valueCounts[max] || 0) ? value : max, counts[0][0]);
+
+                // 顯示意見表單並平滑捲動到頂部
+                document.getElementById('quiz-form').style.display = 'none';
+                document.getElementById('feedback-form').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        // 提交意見處理
+        // 提交意見處理
+        document.getElementById('submit-feedback').addEventListener('click', async () => {
+            // 儲存意見（可選）
+            selfReportedType = document.getElementById('self-reported-type').value;
+            feedback = document.getElementById('feedback-text').value;
+
+            // 計算 MBTI 類型
+            const mbtiType = determineMBTI(selectedCombination, dominantFunction, auxiliaryFunction);
+
+            // 準備發送到 Google Sheets 的數據
+            const data = {
+                timestamp: new Date().toISOString(),
+                firstStageAnswers,
+                secondStageAnswers,
+                thirdStageAnswers,
+                selfReportedType,
+                feedback,
+                mbtiType
+            };
+
+            try {
+                // 發送數據到 Google Apps Script Web App
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxUwfdH2FAAA-fUPwGz7DyOir85v4EMBWU-mG6S5mSmQc_YkrZvygKAR-Q793ZVNwNd/exec', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('無法寫入 Google Sheets');
+                }
+
+                
+            } catch (error) {
+                console.error('寫入 Google Sheets 失敗:', error);
+                alert('數據提交失敗，請稍後再試');
+            }
+            // 顯示最終結果
+            document.getElementById('feedback-form').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            const description = mbtiDescriptions[mbtiType] || { title: '未知類型', description: '無描述' };
+            document.getElementById('mbti-type').innerHTML = `
+                <h2>${mbtiType}</h2>
+                <h3>${description.title}</h3>
+                <p>${description.description.replace(/\n\n/g, '</p><p>')}</p>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
