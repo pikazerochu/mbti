@@ -453,7 +453,7 @@
 
             // 嘗試寫入 Google Sheets
             try {
-                console.log('發送數據:', JSON.stringify(data));
+                //console.log('發送數據:', JSON.stringify(data));
                 const formData = new FormData();
                 formData.append('data', JSON.stringify(data));
 
@@ -463,14 +463,14 @@
                 });
 
                 const responseText = await response.text();
-                console.log('回應狀態:', response.status, '回應內容:', responseText);
+                //console.log('回應狀態:', response.status, '回應內容:', responseText);
                 if (!response.ok) {
                     throw new Error(`無法寫入 Google Sheets: ${response.status} ${responseText}`);
                 }
                 if (responseText !== 'Success') {
                     throw new Error(`Google Apps Script 未回應 Success: ${responseText}`);
                 }
-                console.log('成功寫入 Google Sheets');
+                //console.log('成功寫入 Google Sheets');
             } catch (error) {
                 console.error('寫入 Google Sheets 失敗:', error.message);
                 // 不顯示 alert，遵循設計
