@@ -321,10 +321,26 @@
             return typeMap[combination]?.[dominant]?.[auxiliary] || '未知類型';
         }
 
-        document.getElementById('start-btn').addEventListener('click', () => {
-            document.getElementById('intro-screen').style.display = 'none';
-            document.getElementById('quiz-container').style.display = 'block';
-            renderQuestions();
+        document.getElementById('start-btn').addEventListener('click', async () => {
+            try {
+                const formData = new FormData();
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxF6X1WjacaxfeJJxu3xGdxxKezNOhyAcI3bb8iS0a44ix6iOXcgqCCbknqKrB6NPaQ/exec', {
+                    method: 'POST',
+                    body: formData
+                });
+                const responseText = await response.text();
+                console.log('測試 doPost 回應:', response.status, responseText);
+                if (!response.ok || responseText !== 'Success') {
+                    throw new Error(`測試 doPost 失敗: ${response.status} ${responseText}`);
+                }
+                // 成功：進入題目頁
+                document.getElementById('intro-screen').style.display = 'none';
+                document.getElementById('quiz-container').style.display = 'block';
+                renderQuestions();
+            } catch (error) {
+                console.error('測試 doPost 錯誤:', error.message);
+                alert('伺服器錯誤\n請聯繫開發人員\nLINE ID: playchu\nE-mail: bluecivetcat@gmail.com');
+            }
         });
 
         document.getElementById('quiz-form').addEventListener('submit', (event) => {
