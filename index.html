@@ -84,7 +84,7 @@
         .error-message {
             color: #d32f2f;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             position: absolute;
             left: calc(50% + 90px);
             top: 50%;
@@ -145,7 +145,7 @@
 <body>
     <div id="intro-screen">
         <h1>MBTI 性格測驗</h1>
-        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。如有題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
+        <p>本測驗共分為三階段，第一階段18題，第二階段7題，第三階段7題，共32題。</br>如有題目描述不清楚，或有其他想法，歡迎在最後的意見欄反應給我們知道！</p>
         <button id="start-btn">開始測驗</button>
     </div>
     <div id="quiz-container" style="display: none;">
@@ -159,11 +159,11 @@
             </div>
         </form>
         <div id="feedback-form">
-            <h2>意見回饋（可選）</h2>
-            <label for="self-reported-type">如果您已了解 MBTI 並知道自己的類型，請輸入：</label>
-            <input type="text" id="self-reported-type" placeholder="請輸入您的 MBTI 類型（例如 ENTJ），若未知請留空">
+            <h2>意見回饋</h2>
+            <label for="self-reported-type">若您在進行此測驗之前，已知自己的MBTI類型，請輸入您的類型，協助我們改善題目，十分感謝🙏</label>
+            <input type="text" id="self-reported-type" placeholder="請輸入您的 MBTI 類型，若未知請留空">
             <label for="feedback-text">其他意見或建議（例如覺得哪一題描述不清楚）：</label>
-            <textarea id="feedback-text" placeholder="請輸入您的意見或建議（可留空）"></textarea>
+            <textarea id="feedback-text" placeholder="請輸入您的意見或建議"></textarea>
             <button id="submit-feedback">提交意見並查看結果</button>
         </div>
         <div id="result">
@@ -197,6 +197,8 @@
                 stageInfo.textContent = '第二階段，共7題';
             } else if (currentStep === 3) {
                 stageInfo.textContent = '第三階段，共7題';
+            } else if (currentStep === 4) {
+                stageInfo.textContent = '';
             }
         }
 
@@ -368,6 +370,11 @@
                 auxiliaryFunction = counts.reduce((max, [value, count]) => 
                     count > (valueCounts[max] || 0) ? value : max, counts[0][0]);
 
+                // 進入意見及結果階段
+                currentStep = 4;
+                setStageInfo();
+                
+                // 顯示意見表單並平滑捲動到頂部
                 document.getElementById('quiz-form').style.display = 'none';
                 document.getElementById('feedback-form').style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
