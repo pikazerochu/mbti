@@ -843,10 +843,10 @@ questionsDataSiTeFe = [
     },
     {
         id: 6,
-        text: "哪一個是你更有興趣的？",
+        text: "在解決人際衝突時，你更傾向...",
         options: [
-            { text: "接觸他人、理解他人，同理他人的感受", value: "Fe" },
-            { text: "設計或優化系統和流程，解決問題", value: "Te" }
+            { text: "傾聽每個人的感受，促進相互理解以恢復和諧", value: "Fe" },
+            { text: "分析問題根源，嘗試找出解決問題的方案", value: "Te" }
         ]
     },
     {
